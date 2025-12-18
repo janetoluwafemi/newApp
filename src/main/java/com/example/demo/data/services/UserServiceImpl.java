@@ -47,13 +47,17 @@ public class UserServiceImpl implements UserServiceInterface {
         user.setPassword(registerUserRequest.getPassword());
         Random randomFourNumbers = new Random();
         this.otp = randomFourNumbers.nextInt(1, 4);
-        mailService.sendEmailToUser(
-                registerUserRequest.getEmail(),
-                String.valueOf(otp),
-                "Welcome To Our App"
-        );
-        userRepo.save(user);
-        registerUserResponse.setMessage("User Registered Successfully");
+        try {
+            mailService.sendEmailToUser(
+                    registerUserRequest.getEmail(),
+                    String.valueOf(otp),
+                    "Welcome To Our App"
+            );
+            userRepo.save(user);
+            registerUserResponse.setMessage("User Registered Successfully");
+        } catch (Exception error) {
+            System.out.println(error.getMessage() + "Failed to send email");
+        }
         return registerUserResponse;
     }
 
