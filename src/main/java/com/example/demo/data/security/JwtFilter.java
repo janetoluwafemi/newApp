@@ -27,7 +27,8 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String header = request.getHeader("Authorization");
         if (header == null || header.isEmpty()) {
-            throw new ServletException("Authorization header is missing");
+            filterChain.doFilter(request, response);
+            return;
         }
         if(!header.isEmpty() && header.startsWith("Bearer"))  {
             String token = header.substring(7);

@@ -26,10 +26,10 @@ public class UserServiceTest {
     @Test
     public void testRegisterUser() {
         RegisterUserRequest request = new RegisterUserRequest();
-        request.setEmail("OluwafemiJanet85@gmail.com");
-        request.setPassword("janet@2007");
-        request.setFirstName("Janet");
-        request.setLastName("Oluwafemi");
+        request.setEmail("janetOluwafemi@gmail.com");
+        request.setPassword("janetOluwafemi33");
+        request.setFirstName("Oluwafemi");
+        request.setLastName("janet");
         RegisterUserResponse registerUserResponse = userService.registerUserResponse(request);
         assertThat(registerUserResponse.getMessage().equals("User Registered successfully"));
     }
@@ -44,8 +44,8 @@ public class UserServiceTest {
     @Test
     public void testLoginUser() {
         LoginUserRequest request = new LoginUserRequest();
-        request.setEmail("Oluwafemi@gmail.com");
-        request.setPassword("Janet@2007");
+        request.setEmail("OluwafemiJanet85@gmail.com");
+        request.setPassword("janet@2007");
         LoginUserResponse loginUserResponse = userService.loginUserResponse(request, authenticationManager);
         assertThat(loginUserResponse.getMessage()).isEqualTo("User logged in successfully");
         assertThat(loginUserResponse.getToken()).isNotNull();
