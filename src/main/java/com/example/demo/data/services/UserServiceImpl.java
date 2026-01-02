@@ -7,12 +7,16 @@ import com.example.demo.data.models.User;
 import com.example.demo.data.repositories.UserRepo;
 import com.example.demo.data.security.JwtUtility;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,6 +24,7 @@ import java.util.Optional;
 import java.util.Random;
 
 @Service
+@Component
 public class UserServiceImpl implements UserServiceInterface {
 
     @Autowired
@@ -28,7 +33,15 @@ public class UserServiceImpl implements UserServiceInterface {
     private JwtUtility jwtUtility;
     @Autowired
     private MailService mailService;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
     private String token;
+
+    public UserServiceImpl(PasswordEncoder passwordEncoder, @Lazy AuthenticationManager authenticationManager) {
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+    }
+
     @Override
     public RegisterUserResponse registerUserResponse(RegisterUserRequest registerUserRequest) {
         User user = new User();
@@ -85,7 +98,7 @@ public class UserServiceImpl implements UserServiceInterface {
     }
 
     @Override
-    public LoginUserResponse loginUserResponse(LoginUserRequest loginUserRequest, AuthenticationManager authenticationManager) {
+    public LoginUserResponse loginUserResponse(LoginUserRequest loginUserRequest) {
         Optional<User> user = userRepo.findUserByEmail(loginUserRequest.getEmail());
         if (loginUserRequest.getEmail().isEmpty() || loginUserRequest.getPassword().isEmpty()) {
             throw new AllFieldsMustBeInputted("All Fields Must Be Inputted");
@@ -94,7 +107,7 @@ public class UserServiceImpl implements UserServiceInterface {
             if (user.get().getPassword().equals(loginUserRequest.getPassword())){
                 Authentication authentication = authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(loginUserRequest.getEmail(), loginUserRequest.getPassword())
-                );
+                    );
                 LoginUserResponse loginUserResponse = new LoginUserResponse();
                 loginUserResponse.setMessage("User logged in successfully");
                 this.token = jwtUtility.generateToken(String.valueOf(authentication));

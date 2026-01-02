@@ -10,7 +10,6 @@ import com.example.demo.data.dto.responses.VerifyEmailResponse;
 import com.example.demo.data.services.UserServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -41,9 +40,9 @@ public class UserController {
         }
     }
     @PostMapping("/loginUser")
-    public ResponseEntity<?> loginUser(@RequestBody LoginUserRequest loginUserRequest, AuthenticationManager authenticationManager) {
+    public ResponseEntity<?> loginUser(@RequestBody LoginUserRequest loginUserRequest) {
         try {
-            LoginUserResponse loginUserResponse = userService.loginUserResponse(loginUserRequest, authenticationManager);
+            LoginUserResponse loginUserResponse = userService.loginUserResponse(loginUserRequest);
             return new ResponseEntity<>(new ApiResponse(loginUserResponse, true), HttpStatus.CREATED);
         } catch (Exception error) {
             return new ResponseEntity<>(new ApiResponse(error, false), HttpStatus.BAD_REQUEST);

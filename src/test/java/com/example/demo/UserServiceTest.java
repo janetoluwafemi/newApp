@@ -37,16 +37,16 @@ public class UserServiceTest {
     public void testUserVerification() {
         VerifyEmailRequest request = new VerifyEmailRequest();
         request.setEmail("eniolaonafujabi@gmail.com");
-        request.setOtp(9116);
+        request.setOtp(5057);
         VerifyEmailResponse verifyEmailResponse = userService.verifyEmailResponse(request);
         assertThat(verifyEmailResponse.getMessage().equals("User verified successfully"));
     }
     @Test
     public void testLoginUser() {
         LoginUserRequest request = new LoginUserRequest();
-        request.setEmail("OluwafemiJanet85@gmail.com");
-        request.setPassword("janet@2007");
-        LoginUserResponse loginUserResponse = userService.loginUserResponse(request, authenticationManager);
+        request.setEmail("eniolaonafujabi@gmail.com");
+        request.setPassword("Onafujabi12");
+        LoginUserResponse loginUserResponse = userService.loginUserResponse(request);
         assertThat(loginUserResponse.getMessage()).isEqualTo("User logged in successfully");
         assertThat(loginUserResponse.getToken()).isNotNull();
         assertThat(loginUserResponse.getToken()).isNotEmpty();

@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 public interface UserServiceInterface extends UserDetailsService {
     RegisterUserResponse registerUserResponse(RegisterUserRequest registerUserRequest);
     VerifyEmailResponse verifyEmailResponse(VerifyEmailRequest verifyEmailRequest);
-    LoginUserResponse loginUserResponse(LoginUserRequest loginUserRequest, AuthenticationManager authenticationManager);
+    LoginUserResponse loginUserResponse(LoginUserRequest loginUserRequest);
     LogOutUserResponse logOutUserResponse(LogOutUserRequest logOutUserRequest);
     ChangePasswordResponse changePasswordResponse(ChangePasswordRequest changePasswordRequest);
     ResetPasswordResponse resetPasswordResponse(ResetPasswordRequest resetPasswordRequest);
