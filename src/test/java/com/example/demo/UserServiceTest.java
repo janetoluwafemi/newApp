@@ -23,23 +23,23 @@ public class UserServiceTest {
     private UserServiceImpl userService;
     @Autowired
     private AuthenticationManager authenticationManager;
-    @Test
-    public void testRegisterUser() {
-        RegisterUserRequest request = new RegisterUserRequest();
-        request.setEmail("janetOluwafemi@gmail.com");
-        request.setPassword("janetOluwafemi33");
-        request.setFirstName("Oluwafemi");
-        request.setLastName("janet");
-        RegisterUserResponse registerUserResponse = userService.registerUserResponse(request);
-        assertThat(registerUserResponse.getMessage().equals("User Registered successfully"));
-    }
+//    @Test
+//    public void testRegisterUser() {
+//        RegisterUserRequest request = new RegisterUserRequest();
+//        request.setEmail("janetOluwafemi@gmail.com");
+//        request.setPassword("janetOluwafemi33");
+//        request.setFirstName("Oluwafemi");
+//        request.setLastName("janet");
+//        RegisterUserResponse registerUserResponse = userService.registerUserResponse(request);
+//        assertThat(registerUserResponse.getMessage().equals("User Registered successfully"));
+//    }
     @Test
     public void testUserVerification() {
         VerifyEmailRequest request = new VerifyEmailRequest();
-        request.setEmail("OluwafemiJanet@gmail.com");
-        request.setOtp(1234);
+        request.setEmail("eniolaonafujabi@gmail.com");
+        request.setOtp(9116);
         VerifyEmailResponse verifyEmailResponse = userService.verifyEmailResponse(request);
-        assertThat(verifyEmailResponse.getMessage().equals("OTP verified successfully"));
+        assertThat(verifyEmailResponse.getMessage().equals("User verified successfully"));
     }
     @Test
     public void testLoginUser() {

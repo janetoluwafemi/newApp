@@ -6,6 +6,7 @@ import com.example.demo.data.exceptions.*;
 import com.example.demo.data.models.User;
 import com.example.demo.data.repositories.UserRepo;
 import com.example.demo.data.security.JwtUtility;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,7 +28,6 @@ public class UserServiceImpl implements UserServiceInterface {
     private JwtUtility jwtUtility;
     @Autowired
     private MailService mailService;
-    private int otp;
     private String token;
     @Override
     public RegisterUserResponse registerUserResponse(RegisterUserRequest registerUserRequest) {
@@ -46,13 +46,16 @@ public class UserServiceImpl implements UserServiceInterface {
         user.setLastName(registerUserRequest.getLastName());
         user.setPassword(registerUserRequest.getPassword());
         Random randomFourNumbers = new Random();
-        this.otp = randomFourNumbers.nextInt(1, 4);
+        int otpStr = (randomFourNumbers.nextInt(10000));
+        int otp = Integer.parseInt(String.format("%04d", otpStr));
+        System.out.println("OPT generated is" + otpStr);
         try {
             mailService.sendEmailToUser(
                     registerUserRequest.getEmail(),
                     String.valueOf(otp),
                     "Welcome To Our App"
             );
+            user.setOtp(otp);
             userRepo.save(user);
             registerUserResponse.setMessage("User Registered Successfully");
         } catch (Exception error) {
@@ -66,11 +69,14 @@ public class UserServiceImpl implements UserServiceInterface {
         Optional<User> existingUser = userRepo.findUserByEmail(verifyEmailRequest.getEmail());
         if(existingUser.isPresent()) {
             User user = existingUser.get();
-            if (verifyEmailRequest.getOtp() == otp) {
+            if (verifyEmailRequest.getOtp() == existingUser.get().getOtp()) {
                 user.setOtp(verifyEmailRequest.getOtp());
                 userRepo.save(user);
                 VerifyEmailResponse verifyEmailResponse = new VerifyEmailResponse();
                 verifyEmailResponse.setId(user.getId());
+                verifyEmailResponse.setMessage("User verified successfully");
+                user.setOtp(0);
+                userRepo.save(user);
                 return verifyEmailResponse;
             }
             throw new InvalidOTPException("Invalid OTP");
@@ -125,14 +131,14 @@ public class UserServiceImpl implements UserServiceInterface {
         Optional<User> existingUser = userRepo.findUserByEmail(resetPasswordRequest.getEmail());
         if (existingUser.isPresent()) {
             User user = existingUser.get();
-            Random randomFourNumbers = new Random();
-            this.otp = randomFourNumbers.nextInt(1, 4);
-            mailService.sendEmailToUser(
-                    resetPasswordRequest.getEmail(),
-                    String.valueOf(otp),
-                    "Reset Your Password"
-
-            );
+//            Random randomFourNumbers = new Random();
+//            this.otp = randomFourNumbers.nextInt(1, 4);
+//            mailService.sendEmailToUser(
+//                    resetPasswordRequest.getEmail(),
+//                    String.valueOf(otp),
+//                    "Reset Your Password"
+//
+//            );
             ResetPasswordResponse resetPasswordResponse = new ResetPasswordResponse();
             if (resetPasswordRequest.getOtp().isEmpty() || resetPasswordRequest.getPassword().isEmpty()) {
                 throw new AllFieldsMustBeInputted("All Fields Must Be Inputted");
