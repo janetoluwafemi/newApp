@@ -41,11 +41,7 @@ public class UserController {
     }
     @PostMapping("/loginUser")
     public ResponseEntity<?> loginUser(@RequestBody LoginUserRequest loginUserRequest) {
-        try {
             LoginUserResponse loginUserResponse = userService.loginUserResponse(loginUserRequest);
             return new ResponseEntity<>(new ApiResponse(loginUserResponse, true), HttpStatus.CREATED);
-        } catch (Exception error) {
-            return new ResponseEntity<>(new ApiResponse(error, false), HttpStatus.BAD_REQUEST);
-        }
     }
 }

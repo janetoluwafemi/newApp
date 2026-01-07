@@ -6,11 +6,10 @@ import com.example.demo.data.exceptions.*;
 import com.example.demo.data.models.User;
 import com.example.demo.data.repositories.UserRepo;
 import com.example.demo.data.security.JwtUtility;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -57,7 +56,7 @@ public class UserServiceImpl implements UserServiceInterface {
         user.setEmail(registerUserRequest.getEmail());
         user.setFirstName(registerUserRequest.getFirstName());
         user.setLastName(registerUserRequest.getLastName());
-        user.setPassword(registerUserRequest.getPassword());
+        user.setPassword(passwordEncoder.encode(registerUserRequest.getPassword()));
         Random randomFourNumbers = new Random();
         int otpStr = (randomFourNumbers.nextInt(10000));
         int otp = Integer.parseInt(String.format("%04d", otpStr));
@@ -99,21 +98,21 @@ public class UserServiceImpl implements UserServiceInterface {
 
     @Override
     public LoginUserResponse loginUserResponse(LoginUserRequest loginUserRequest) {
-        Optional<User> user = userRepo.findUserByEmail(loginUserRequest.getEmail());
+        Optional<User> existingUser = userRepo.findUserByEmail(loginUserRequest.getEmail());
+        System.out.println(existingUser);
+        System.out.println(loginUserRequest.getPassword() + loginUserRequest.getEmail());
         if (loginUserRequest.getEmail().isEmpty() || loginUserRequest.getPassword().isEmpty()) {
             throw new AllFieldsMustBeInputted("All Fields Must Be Inputted");
         }
-        if (user.isPresent()) {
-            if (user.get().getPassword().equals(loginUserRequest.getPassword())){
+        if (existingUser.isPresent()) {
                 Authentication authentication = authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(loginUserRequest.getEmail(), loginUserRequest.getPassword())
-                    );
+                );
                 LoginUserResponse loginUserResponse = new LoginUserResponse();
                 loginUserResponse.setMessage("User logged in successfully");
                 this.token = jwtUtility.generateToken(String.valueOf(authentication));
                 loginUserResponse.setToken(token);
                 return loginUserResponse;
-            }
         }
         throw new UserNotFoundException("User Not Found");
     }
