@@ -1,12 +1,7 @@
 package com.example.demo.data.controllers;
 
-import com.example.demo.data.dto.requests.LoginUserRequest;
-import com.example.demo.data.dto.requests.RegisterUserRequest;
-import com.example.demo.data.dto.requests.VerifyEmailRequest;
-import com.example.demo.data.dto.responses.ApiResponse;
-import com.example.demo.data.dto.responses.LoginUserResponse;
-import com.example.demo.data.dto.responses.RegisterUserResponse;
-import com.example.demo.data.dto.responses.VerifyEmailResponse;
+import com.example.demo.data.dto.requests.*;
+import com.example.demo.data.dto.responses.*;
 import com.example.demo.data.services.UserServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +36,49 @@ public class UserController {
     }
     @PostMapping("/loginUser")
     public ResponseEntity<?> loginUser(@RequestBody LoginUserRequest loginUserRequest) {
+        try {
             LoginUserResponse loginUserResponse = userService.loginUserResponse(loginUserRequest);
             return new ResponseEntity<>(new ApiResponse(loginUserResponse, true), HttpStatus.CREATED);
+        } catch (Exception error) {
+            return new ResponseEntity<>(new ApiResponse(error, false), HttpStatus.BAD_REQUEST);
+        }
+    }
+    @PostMapping("/resetPassword")
+    public ResponseEntity<?> resetPassword(@RequestBody String email, ResetPasswordRequest resetPasswordRequest) {
+        try {
+            ResetPasswordResponse resetPasswordResponse = userService.resetPasswordResponse(email, resetPasswordRequest);
+            return new ResponseEntity<>(new ApiResponse(resetPasswordResponse, true), HttpStatus.CREATED);
+        } catch (Exception error) {
+            return new ResponseEntity<>(new ApiResponse(error, false), HttpStatus.BAD_REQUEST);
+        }
+    }
+    @PostMapping("/changePassword")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest) {
+        try {
+            ChangePasswordResponse changePasswordResponse = userService.changePasswordResponse(changePasswordRequest);
+            return new ResponseEntity<>(new ApiResponse(changePasswordResponse, true), HttpStatus.CREATED);
+        } catch (Exception error) {
+            return new ResponseEntity<>(new ApiResponse(error, false), HttpStatus.BAD_REQUEST);
+        }
+    }
+    @PostMapping("/addProduct")
+    public ResponseEntity<?> addProduct(@RequestBody AddProductWrapper addProductRequest) {
+        try {
+            String email = addProductRequest.getEmail();
+            AddProductRequest product = addProductRequest.getProduct();
+            AddProductResponse addProductResponse = userService.addProductResponse(email, product);
+            return new ResponseEntity<>(new ApiResponse(addProductResponse, true), HttpStatus.CREATED);
+        } catch (Exception error) {
+            return new ResponseEntity<>(new ApiResponse(error, false), HttpStatus.BAD_REQUEST);
+        }
+    }
+    @DeleteMapping("/deleteProduct")
+    public ResponseEntity<?> deleteProduct(@RequestBody RemoveProductRequest removeProductRequest) {
+        try {
+            RemoveProductResponse removeProductResponse = userService.removeProductResponse(removeProductRequest);
+            return new ResponseEntity<>(new ApiResponse(removeProductResponse, true), HttpStatus.CREATED);
+        } catch (Exception error) {
+            return new ResponseEntity<>(new ApiResponse(error, false), HttpStatus.BAD_REQUEST);
+        }
     }
 }

@@ -3,15 +3,17 @@ package com.example.demo.data.services;
 import com.example.demo.data.dto.requests.*;
 import com.example.demo.data.dto.responses.*;
 import com.example.demo.data.exceptions.*;
+import com.example.demo.data.models.Product;
 import com.example.demo.data.models.User;
+import com.example.demo.data.repositories.ProductRepo;
 import com.example.demo.data.repositories.UserRepo;
 import com.example.demo.data.security.JwtUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,10 +33,11 @@ public class UserServiceImpl implements UserServiceInterface {
     @Autowired
     private JwtUtility jwtUtility;
     @Autowired
+    private ProductRepo productRepo;
+    @Autowired
     private MailService mailService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-    private String token;
 
     public UserServiceImpl(PasswordEncoder passwordEncoder, @Lazy AuthenticationManager authenticationManager) {
         this.passwordEncoder = passwordEncoder;
@@ -58,7 +61,7 @@ public class UserServiceImpl implements UserServiceInterface {
         user.setLastName(registerUserRequest.getLastName());
         user.setPassword(passwordEncoder.encode(registerUserRequest.getPassword()));
         Random randomFourNumbers = new Random();
-        int otpStr = (randomFourNumbers.nextInt(10000));
+        int otpStr = randomFourNumbers.nextInt(10000);
         int otp = Integer.parseInt(String.format("%04d", otpStr));
         System.out.println("OPT generated is" + otpStr);
         try {
@@ -81,7 +84,7 @@ public class UserServiceImpl implements UserServiceInterface {
         Optional<User> existingUser = userRepo.findUserByEmail(verifyEmailRequest.getEmail());
         if(existingUser.isPresent()) {
             User user = existingUser.get();
-            if (verifyEmailRequest.getOtp() == existingUser.get().getOtp()) {
+            if (String.valueOf(verifyEmailRequest.getOtp()).equals(String.valueOf(existingUser.get().getOtp()))) {
                 user.setOtp(verifyEmailRequest.getOtp());
                 userRepo.save(user);
                 VerifyEmailResponse verifyEmailResponse = new VerifyEmailResponse();
@@ -100,7 +103,6 @@ public class UserServiceImpl implements UserServiceInterface {
     public LoginUserResponse loginUserResponse(LoginUserRequest loginUserRequest) {
         Optional<User> existingUser = userRepo.findUserByEmail(loginUserRequest.getEmail());
         System.out.println(existingUser);
-        System.out.println(loginUserRequest.getPassword() + loginUserRequest.getEmail());
         if (loginUserRequest.getEmail().isEmpty() || loginUserRequest.getPassword().isEmpty()) {
             throw new AllFieldsMustBeInputted("All Fields Must Be Inputted");
         }
@@ -108,11 +110,13 @@ public class UserServiceImpl implements UserServiceInterface {
                 Authentication authentication = authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(loginUserRequest.getEmail(), loginUserRequest.getPassword())
                 );
+                org.springframework.security.core.userdetails.UserDetails userDetails = (org.springframework.security.core.userdetails.UserDetails) authentication.getPrincipal();
                 LoginUserResponse loginUserResponse = new LoginUserResponse();
-                loginUserResponse.setMessage("User logged in successfully");
-                this.token = jwtUtility.generateToken(String.valueOf(authentication));
-                loginUserResponse.setToken(token);
-                return loginUserResponse;
+            assert userDetails != null;
+            String token = jwtUtility.generateToken(userDetails.getUsername());
+            loginUserResponse.setMessage("User logged in successfully");
+            loginUserResponse.setToken(token);
+            return loginUserResponse;
         }
         throw new UserNotFoundException("User Not Found");
     }
@@ -124,39 +128,56 @@ public class UserServiceImpl implements UserServiceInterface {
 
     @Override
     public ChangePasswordResponse changePasswordResponse(ChangePasswordRequest changePasswordRequest) {
-        Optional<User> userThatHasLoggedIn = userRepo.findUserByToken(token);
-        if (!token.isEmpty()) {
-            User user = userThatHasLoggedIn.get();
-            if(user.getPassword().equals(changePasswordRequest.getOldPassword())) {
-                user.setPassword(changePasswordRequest.getNewPassword());
-                userRepo.save(user);
-                ChangePasswordResponse changePasswordResponse = new ChangePasswordResponse();
-                changePasswordResponse.setMessage("Password Changed Successfully");
-                return changePasswordResponse;
-            }
+        Optional<User> findUser = userRepo.findUserByEmail(changePasswordRequest.getEmail());
+        if (findUser.isPresent()) {
+            User user = findUser.get();
+                if (passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())) {
+                    user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()) );
+                    userRepo.save(user);
+                    ChangePasswordResponse changePasswordResponse = new ChangePasswordResponse();
+                    changePasswordResponse.setMessage("Password Changed Successfully");
+                    return changePasswordResponse;
+                }
+                throw new InCorrectPasswordException("Incorrect Password");
         }
         throw new UserNotLoggedInException("User Not Logged In");
     }
-
     @Override
-    public ResetPasswordResponse resetPasswordResponse(ResetPasswordRequest resetPasswordRequest) {
-        Optional<User> existingUser = userRepo.findUserByEmail(resetPasswordRequest.getEmail());
+    public SendOTPResponse sendOTPResponse(String email){
+        Optional<User> existingUser = userRepo.findUserByEmail(email);
         if (existingUser.isPresent()) {
             User user = existingUser.get();
-//            Random randomFourNumbers = new Random();
-//            this.otp = randomFourNumbers.nextInt(1, 4);
-//            mailService.sendEmailToUser(
-//                    resetPasswordRequest.getEmail(),
-//                    String.valueOf(otp),
-//                    "Reset Your Password"
-//
-//            );
-            ResetPasswordResponse resetPasswordResponse = new ResetPasswordResponse();
-            if (resetPasswordRequest.getOtp().isEmpty() || resetPasswordRequest.getPassword().isEmpty()) {
+            Random randomFourNumbers = new Random();
+            int otpStr = randomFourNumbers.nextInt(10000);
+            int otp = Integer.parseInt(String.format("%04d", otpStr));
+            mailService.sendEmailToUser(
+                    email,
+                    String.valueOf(otp),
+                    "Otp sent, reset your password"
+            );
+            user.setOtp(otp);
+            userRepo.save(user);
+            SendOTPResponse sendOTPResponse = new SendOTPResponse();
+            sendOTPResponse.setOtp(String.valueOf(otp));
+            return sendOTPResponse;
+        }
+        throw new UserNotFoundException("User Not Found");
+    }
+    @Override
+    public ResetPasswordResponse resetPasswordResponse(String email, ResetPasswordRequest resetPasswordRequest) {
+        Optional<User> existingUser = userRepo.findUserByEmail(email);
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+            if (resetPasswordRequest.getOtp() == 0 || resetPasswordRequest.getNewPassword().isEmpty()) {
                 throw new AllFieldsMustBeInputted("All Fields Must Be Inputted");
             }
-            user.setOtp(Integer.parseInt(resetPasswordRequest.getOtp()));
-            user.setPassword(resetPasswordRequest.getPassword());
+            if(user.getOtp() != resetPasswordRequest.getOtp()) {
+                throw new InvalidOTPException("Invalid OTP");
+            }
+            user.setOtp(resetPasswordRequest.getOtp());
+            user.setPassword(passwordEncoder.encode(resetPasswordRequest.getNewPassword()));
+            userRepo.save(user);
+            ResetPasswordResponse resetPasswordResponse = new ResetPasswordResponse();
             resetPasswordResponse.setMessage("Password Reset Successfully");
             return resetPasswordResponse;
         }
@@ -173,12 +194,54 @@ public class UserServiceImpl implements UserServiceInterface {
         }
         throw new UserNotFoundException("User Not Found");
     }
+    @Override
+    public AddProductResponse addProductResponse(String email, AddProductRequest addProductRequest) {
+        Optional<User> existingUser = userRepo.findUserByEmail(email);
+        if (email.equals("oluwafemijanet85@gmail.com")) {
+            if (existingUser.isPresent()) {
+                Product product = new Product();
+                Optional<Product> productOptional = productRepo.findProductByProductName(addProductRequest.getProductName());
+                if (productOptional.isPresent()) {
+                    throw new ProductAlreadyExistException("Product Already Exist");
+                }
+                product.setProductName(addProductRequest.getProductName());
+                product.setCategory(addProductRequest.getCategory());
+                product.setPrice(addProductRequest.getPrice());
+                product.setDescription(addProductRequest.getDescription());
+                product.setQuantity(addProductRequest.getQuantity());
+                product.setImageUrl(addProductRequest.getImageUrl());
+                productRepo.save(product);
+                AddProductResponse addProductResponse = new AddProductResponse();
+                addProductResponse.setProductName(product.getProductName());
+                addProductResponse.setCategory(product.getCategory());
+                addProductResponse.setPrice(product.getPrice());
+                addProductResponse.setDescription(product.getDescription());
+                addProductResponse.setQuantity(product.getQuantity());
+                addProductResponse.setImageUrl(product.getImageUrl());
+                addProductResponse.setMessage("Product Added Successfully");
+                return addProductResponse;
+            }
+            throw new UsernameNotFoundException("User not found");
+        }
+        throw new IllegalArgumentException("Not Allowed To Add Product");
+    }
 
+    @Override
+    public RemoveProductResponse removeProductResponse(RemoveProductRequest removeProductRequest) {
+        Optional<Product> product = productRepo.findProductById(removeProductRequest.getProductId());
+        if (product.isPresent()) {
+            productRepo.delete(product.get());
+            RemoveProductResponse removeProductResponse = new RemoveProductResponse();
+            removeProductResponse.setMessage("Product Removed Successfully");
+            return removeProductResponse;
+        }
+        throw new ProductDoesNotExistException("Product Does Not Exist");
+    }
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> user = userRepo.findUserByEmail(username);
         if (user.isPresent()) {
-            return new org.springframework.security.core.userdetails.User(user.get().getEmail(), "{noop}" + user.get().getPassword(), new ArrayList<>());
+            return new org.springframework.security.core.userdetails.User(user.get().getEmail(), user.get().getPassword(), new ArrayList<>());
         }
         throw new UserNotFoundException("User Not Found");
     }
