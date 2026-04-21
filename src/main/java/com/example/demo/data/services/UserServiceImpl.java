@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -114,6 +115,9 @@ public class UserServiceImpl implements UserServiceInterface {
                 LoginUserResponse loginUserResponse = new LoginUserResponse();
             assert userDetails != null;
             String token = jwtUtility.generateToken(userDetails.getUsername());
+            User user = existingUser.get();
+            user.setToken(token);
+            userRepo.save(user);
             loginUserResponse.setMessage("User logged in successfully");
             loginUserResponse.setToken(token);
             return loginUserResponse;
@@ -140,7 +144,7 @@ public class UserServiceImpl implements UserServiceInterface {
                 }
                 throw new InCorrectPasswordException("Incorrect Password");
         }
-        throw new UserNotLoggedInException("User Not Logged In");
+        throw new UserNotFoundException("User Not Found");
     }
     @Override
     public SendOTPResponse sendOTPResponse(String email){
@@ -221,22 +225,43 @@ public class UserServiceImpl implements UserServiceInterface {
                 addProductResponse.setMessage("Product Added Successfully");
                 return addProductResponse;
             }
-            throw new UsernameNotFoundException("User not found");
+            throw new UserNotFoundException("User not found");
         }
         throw new IllegalArgumentException("Not Allowed To Add Product");
     }
 
     @Override
-    public RemoveProductResponse removeProductResponse(RemoveProductRequest removeProductRequest) {
-        Optional<Product> product = productRepo.findProductById(removeProductRequest.getProductId());
-        if (product.isPresent()) {
-            productRepo.delete(product.get());
-            RemoveProductResponse removeProductResponse = new RemoveProductResponse();
-            removeProductResponse.setMessage("Product Removed Successfully");
-            return removeProductResponse;
+    public RemoveProductResponse removeProductResponse(String email, RemoveProductRequest removeProductRequest) {
+        Optional<User> existingUser = userRepo.findUserByEmail(email);
+        if (email.equals("oluwafemijanet85@gmail.com")) {
+            if (existingUser.isPresent()) {
+                Optional<Product> product = productRepo.findProductById(removeProductRequest.getProductId());
+                if (product.isPresent()) {
+                    productRepo.delete(product.get());
+                    RemoveProductResponse removeProductResponse = new RemoveProductResponse();
+                    removeProductResponse.setMessage("Product Removed Successfully");
+                    return removeProductResponse;
+                }
+                throw new ProductDoesNotExistException("Product Does Not Exist");
+            }
+            throw new UserNotFoundException("User not found");
         }
-        throw new ProductDoesNotExistException("Product Does Not Exist");
+        throw new IllegalArgumentException("Not Allowed To Remove Product");
     }
+
+    @Override
+    public GetAllProductsResponse getAllProductsResponse(String token) {
+        Optional<User> user = userRepo.findUserByToken(token);
+        if (user.isPresent()) {
+            List<Product> products = productRepo.findAll();
+            GetAllProductsResponse getAllProductsResponse = new GetAllProductsResponse();
+            getAllProductsResponse.setProducts(products);
+            getAllProductsResponse.setMessage("All Products Successfully Retrieved");
+            return getAllProductsResponse;
+        }
+        throw new UserNotFoundException("User not found");
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> user = userRepo.findUserByEmail(username);

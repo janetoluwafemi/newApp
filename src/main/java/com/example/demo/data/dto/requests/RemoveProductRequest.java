@@ -8,5 +8,6 @@ import lombok.Setter;
 @Getter
 @Data
 public class RemoveProductRequest {
+    private String email;
     private Long productId;
 }

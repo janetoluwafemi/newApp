@@ -7,6 +7,7 @@ import com.example.demo.data.dto.responses.CancelOrderResponse;
 import com.example.demo.data.dto.responses.MakeAnOrderResponse;
 import com.example.demo.data.exceptions.OrderDoesNotExistException;
 import com.example.demo.data.exceptions.ProductDoesNotExistException;
+import com.example.demo.data.exceptions.UserNotFoundException;
 import com.example.demo.data.models.Order;
 import com.example.demo.data.models.Product;
 import com.example.demo.data.models.User;
@@ -58,7 +59,7 @@ import java.util.Optional;
             }
             throw new ProductDoesNotExistException("Product does not exist");
         }
-        throw new UsernameNotFoundException("User not found");
+        throw new UserNotFoundException("User not found");
     }
 
     @Override
@@ -80,6 +81,6 @@ import java.util.Optional;
             }
             throw new OrderDoesNotExistException("Order does not exist");
         }
-        throw new UsernameNotFoundException("User not found");
+        throw new UserNotFoundException("User not found");
     }
 }

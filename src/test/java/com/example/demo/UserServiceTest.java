@@ -84,8 +84,17 @@ public class UserServiceTest {
       @Test
       public void testAdminCanDeleteProduct() {
         RemoveProductRequest removeProductRequest = new RemoveProductRequest();
+        String email = "oluwafemijanet85@gmail.com";
         removeProductRequest.setProductId(1L);
-        RemoveProductResponse removeProductResponse = userService.removeProductResponse(removeProductRequest);
+        RemoveProductResponse removeProductResponse = userService.removeProductResponse(email, removeProductRequest);
         assertThat(removeProductResponse.getMessage().equals("Product Removed Successfully"));
+    }
+    @Test
+    public void textUserCanGetAllProducts() {
+        GetAllProductsRequest getAllProductsRequest = new GetAllProductsRequest();
+        getAllProductsRequest.setUserId(1L);
+        String token = "";
+        GetAllProductsResponse getAllProductsResponse = userService.getAllProductsResponse(token);
+        assertThat(getAllProductsResponse.getMessage()).isEqualTo("All Products Successfully Retrieved");
     }
 }

@@ -8,6 +8,7 @@ import com.example.demo.data.dto.responses.DeleteCartResponse;
 import com.example.demo.data.dto.responses.RemoveFromCartResponse;
 import com.example.demo.data.exceptions.CartDoesNotExistException;
 import com.example.demo.data.exceptions.ProductDoesNotExistException;
+import com.example.demo.data.exceptions.UserNotFoundException;
 import com.example.demo.data.models.Cart;
 import com.example.demo.data.models.CartItem;
 import com.example.demo.data.models.Product;
@@ -66,7 +67,7 @@ public class CartServiceImpl implements CartServiceInterface{
             }
             throw new ProductDoesNotExistException("Product does not exist");
         }
-        throw new UsernameNotFoundException("User not found");
+        throw new UserNotFoundException("User not found");
     }
 
     @Override
@@ -80,7 +81,7 @@ public class CartServiceImpl implements CartServiceInterface{
             deleteCartResponse.setMessage("Successfully deleted the cart");
             return deleteCartResponse;
         }
-        throw new UsernameNotFoundException("User not found");
+        throw new UserNotFoundException("User not found");
     }
 
     @Override
@@ -104,6 +105,6 @@ public class CartServiceImpl implements CartServiceInterface{
             }
             throw new ProductDoesNotExistException("Product does not exist");
         }
-        throw new UsernameNotFoundException("User not found");
+        throw new UserNotFoundException("User not found");
     }
 }

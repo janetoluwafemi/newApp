@@ -15,5 +15,6 @@ public interface UserServiceInterface extends UserDetailsService {
     ResetPasswordResponse resetPasswordResponse(String email, ResetPasswordRequest resetPasswordRequest);
     FindUserEmailResponse findUserEmailResponse(String email);
     AddProductResponse addProductResponse(String email, AddProductRequest addProductRequest);
-    RemoveProductResponse removeProductResponse(RemoveProductRequest removeProductRequest);
+    RemoveProductResponse removeProductResponse(String email, RemoveProductRequest removeProductRequest);
+    GetAllProductsResponse getAllProductsResponse(String userId);
 }

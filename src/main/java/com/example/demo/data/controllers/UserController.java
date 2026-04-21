@@ -73,10 +73,21 @@ public class UserController {
         }
     }
     @DeleteMapping("/deleteProduct")
-    public ResponseEntity<?> deleteProduct(@RequestBody RemoveProductRequest removeProductRequest) {
+    public ResponseEntity<?> deleteProduct(@RequestBody RemoveProductWrapper removeProductRequest) {
         try {
-            RemoveProductResponse removeProductResponse = userService.removeProductResponse(removeProductRequest);
+            String email = removeProductRequest.getEmail();
+            RemoveProductRequest product = removeProductRequest.getProduct();
+            RemoveProductResponse removeProductResponse = userService.removeProductResponse(email, product);
             return new ResponseEntity<>(new ApiResponse(removeProductResponse, true), HttpStatus.CREATED);
+        } catch (Exception error) {
+            return new ResponseEntity<>(new ApiResponse(error, false), HttpStatus.BAD_REQUEST);
+        }
+    }
+    @GetMapping("/getAllProducts")
+    public ResponseEntity<?> getAllProducts(@RequestParam String token) {
+        try {
+            GetAllProductsResponse getAllProductsResponse = userService.getAllProductsResponse(token);
+            return new ResponseEntity<>(new ApiResponse(getAllProductsResponse, true), HttpStatus.CREATED);
         } catch (Exception error) {
             return new ResponseEntity<>(new ApiResponse(error, false), HttpStatus.BAD_REQUEST);
         }
