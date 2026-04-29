@@ -3,8 +3,10 @@ package com.example.demo.data.services;
 import com.example.demo.data.dto.requests.*;
 import com.example.demo.data.dto.responses.*;
 import com.example.demo.data.exceptions.*;
+import com.example.demo.data.models.Payment;
 import com.example.demo.data.models.Product;
 import com.example.demo.data.models.User;
+import com.example.demo.data.repositories.PaymentRepo;
 import com.example.demo.data.repositories.ProductRepo;
 import com.example.demo.data.repositories.UserRepo;
 import com.example.demo.data.security.JwtUtility;
@@ -13,7 +15,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,6 +37,8 @@ public class UserServiceImpl implements UserServiceInterface {
     @Autowired
     private ProductRepo productRepo;
     @Autowired
+    private PaymentRepo paymentRepo;
+    @Autowired
     private MailService mailService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
@@ -53,30 +56,27 @@ public class UserServiceImpl implements UserServiceInterface {
         if (user1.isPresent()) {
             throw new UserAlreadyExist("User Already Exist");
         }
-        if (registerUserRequest.getEmail().isEmpty() || registerUserRequest.getPassword().isEmpty() ||
-                registerUserRequest.getFirstName().isEmpty() || registerUserRequest.getLastName().isEmpty()) {
+        if (registerUserRequest.getEmail().isEmpty() || registerUserRequest.getPassword().isEmpty()) {
             throw new AllFieldsMustBeInputted("All Fields Must Be Inputted");
         }
         user.setEmail(registerUserRequest.getEmail());
-        user.setFirstName(registerUserRequest.getFirstName());
-        user.setLastName(registerUserRequest.getLastName());
         user.setPassword(passwordEncoder.encode(registerUserRequest.getPassword()));
         Random randomFourNumbers = new Random();
         int otpStr = randomFourNumbers.nextInt(10000);
         int otp = Integer.parseInt(String.format("%04d", otpStr));
         System.out.println("OPT generated is" + otpStr);
-        try {
-            mailService.sendEmailToUser(
-                    registerUserRequest.getEmail(),
-                    String.valueOf(otp),
-                    "Welcome To Our App"
-            );
-            user.setOtp(otp);
+//        try {
+//            mailService.sendEmailToUser(
+//                    registerUserRequest.getEmail(),
+//                    String.valueOf(otp),
+//                    "Welcome To Our App"
+//            );
+//            user.setOtp(otp);
             userRepo.save(user);
             registerUserResponse.setMessage("User Registered Successfully");
-        } catch (Exception error) {
-            System.out.println(error.getMessage() + "Failed to send email");
-        }
+//        } catch (Exception error) {
+//            System.out.println(error.getMessage() + "Failed to send email");
+//        }
         return registerUserResponse;
     }
 
@@ -250,16 +250,53 @@ public class UserServiceImpl implements UserServiceInterface {
     }
 
     @Override
-    public GetAllProductsResponse getAllProductsResponse(String token) {
-        Optional<User> user = userRepo.findUserByToken(token);
-        if (user.isPresent()) {
+//    public GetProductResponse getProductResponse(String token, Long productId) {
+    public GetProductResponse getProductResponse(Long productId) {
+//        Optional<User> user = userRepo.findUserByToken(token);
+//        if (user.isPresent()) {
+            Optional<Product> product = productRepo.getProductById(productId);
+            if (product.isPresent()) {
+                Product getProduct = product.get();
+                GetProductResponse getProductResponse = new GetProductResponse();
+                getProductResponse.setProduct(getProduct);
+                getProductResponse.setMessage("Product Retrieved Successfully");
+                return getProductResponse;
+            }
+            throw new ProductDoesNotExistException("Product Does Not Exist");
+//        }
+//        throw new UserNotFoundException("User not found");
+    }
+
+    @Override
+//    public GetAllProductsResponse getAllProductsResponse(String token) {
+    public GetAllProductsResponse getAllProductsResponse() {
+//        Optional<User> user = userRepo.findUserByToken(token);
+//        if (user.isPresent()) {
             List<Product> products = productRepo.findAll();
             GetAllProductsResponse getAllProductsResponse = new GetAllProductsResponse();
             getAllProductsResponse.setProducts(products);
             getAllProductsResponse.setMessage("All Products Successfully Retrieved");
             return getAllProductsResponse;
+
+//        }
+//        throw new UserNotFoundException("User not found");
+    }
+
+    @Override
+    public FindUserPaymentResponse findUserPaymentResponse(String email, FindUserPaymentRequest findUserPaymentRequest) {
+        Optional<User> existingUser = userRepo.findUserByEmail(email);
+        if (email.equals("oluwafemijanet85@gmail.com")) {
+            if (existingUser.isPresent()) {
+                Payment payment = paymentRepo.findPaymentByEmail(findUserPaymentRequest.getUserEmail())
+                        .orElseThrow(() -> new NoPaymentWasMadeWithThisEmailException("No Payment Was Made With This Email"));
+                FindUserPaymentResponse findUserPaymentResponse = new FindUserPaymentResponse();
+                findUserPaymentResponse.setPayment(payment);
+                findUserPaymentResponse.setMessage("Payment Made With This Email " + findUserPaymentRequest.getUserEmail() + " Is Found Successfully");
+                return findUserPaymentResponse;
+            }
+            throw new UserNotFoundException("User not found");
         }
-        throw new UserNotFoundException("User not found");
+        throw new IllegalArgumentException("Not Allowed To Add Product");
     }
 
     @Override

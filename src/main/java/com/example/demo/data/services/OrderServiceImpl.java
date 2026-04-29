@@ -36,30 +36,45 @@ import java.util.Optional;
 
 
     @Override
-    public MakeAnOrderResponse makeAnOrderResponse(MakeAnOrderRequest makeAnOrderRequest) {
-        Optional<User> user = userRepo.findUserById(makeAnOrderRequest.getUserId());
-        Optional<Product> product = productRepo.findProductById(makeAnOrderRequest.getProductId());
-        if (user.isPresent()) {
-            if (product.isPresent()) {
-                Order order = new Order();
-                order.setUser(user.get());
-                List<Product> products = new ArrayList<>();
-                products.add(product.get());
-                order.setProduct(products);
-                mailService.sendEmailToUser(
-                        makeAnOrderRequest.getEmail(),
-                        String.valueOf(makeAnOrderRequest.getProductId()),
-                        "I want to make an order"
-                );
-                orderRepo.save(order);
-                MakeAnOrderResponse makeAnOrderResponse = new MakeAnOrderResponse();
-                makeAnOrderResponse.setOrderId(order.getId());
-                makeAnOrderResponse.setMessage("Order made successfully");
-                return makeAnOrderResponse;
-            }
-            throw new ProductDoesNotExistException("Product does not exist");
+    public MakeAnOrderResponse makeAnOrderResponse(String token, Long productId, MakeAnOrderRequest makeAnOrderRequest) {
+//        User existingUser = userRepo.findUserByToken(token)
+//                .orElseThrow(() -> new UserNotFoundException("User Not Found"));
+        User existingUser = userRepo.findUserByToken(token)
+                .orElseGet(() -> {
+                    User user = new User();
+                    user.setEmail(makeAnOrderRequest.getEmail());
+                    if (userRepo.findUserByEmail(makeAnOrderRequest.getEmail()).isEmpty()) {
+                        return userRepo.save(user);
+                    }
+                    return user;
+                });
+        Optional<Product> product = productRepo.findProductById(productId);
+        String email = "oluwafemijanet85@gmail.com";
+        if (product.isPresent()) {
+            Order order = new Order();
+            order.setQuantity(makeAnOrderRequest.getQuantity());
+            order.setUser(existingUser);
+            Product existingProduct = product.get();
+            List<Product> products = new ArrayList<>();
+            products.add(product.get());
+            order.setProduct(products);
+            String userEmail = java.util.Optional.ofNullable(existingUser.getEmail())
+                    .orElse(makeAnOrderRequest.getEmail());
+
+            String body = ("I want to place an order for " + existingProduct.getProductName() + " (quantity: " + makeAnOrderRequest.getQuantity() + ").");
+            mailService.sendEmailToUser(
+                    email,
+                    userEmail,
+                    body
+            );
+            orderRepo.save(order);
+            MakeAnOrderResponse makeAnOrderResponse = new MakeAnOrderResponse();
+            makeAnOrderResponse.setProduct(product.get());
+            makeAnOrderResponse.setOrderId(order.getId());
+            makeAnOrderResponse.setMessage("Order made successfully, An Email Was Sent To The Company");
+            return makeAnOrderResponse;
         }
-        throw new UserNotFoundException("User not found");
+        throw new ProductDoesNotExistException("Product does not exist");
     }
 
     @Override

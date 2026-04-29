@@ -83,10 +83,19 @@ public class UserController {
             return new ResponseEntity<>(new ApiResponse(error, false), HttpStatus.BAD_REQUEST);
         }
     }
-    @GetMapping("/getAllProducts")
-    public ResponseEntity<?> getAllProducts(@RequestParam String token) {
+    @GetMapping("/getProduct")
+    public ResponseEntity<?> getProduct(@RequestParam Long productId) {
         try {
-            GetAllProductsResponse getAllProductsResponse = userService.getAllProductsResponse(token);
+            GetProductResponse getProductResponse = userService.getProductResponse(productId);
+            return new ResponseEntity<>(new ApiResponse(getProductResponse, true), HttpStatus.CREATED);
+        } catch (Exception error) {
+            return new ResponseEntity<>(new ApiResponse(error, false), HttpStatus.BAD_REQUEST);
+        }
+    }
+    @GetMapping("/getAllProducts")
+    public ResponseEntity<?> getAllProducts() {
+        try {
+            GetAllProductsResponse getAllProductsResponse = userService.getAllProductsResponse();
             return new ResponseEntity<>(new ApiResponse(getAllProductsResponse, true), HttpStatus.CREATED);
         } catch (Exception error) {
             return new ResponseEntity<>(new ApiResponse(error, false), HttpStatus.BAD_REQUEST);

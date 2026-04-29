@@ -4,7 +4,6 @@ import com.example.demo.data.dto.requests.*;
 import com.example.demo.data.dto.responses.*;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
-
 public interface UserServiceInterface extends UserDetailsService {
     RegisterUserResponse registerUserResponse(RegisterUserRequest registerUserRequest);
     VerifyEmailResponse verifyEmailResponse(VerifyEmailRequest verifyEmailRequest);
@@ -16,5 +15,9 @@ public interface UserServiceInterface extends UserDetailsService {
     FindUserEmailResponse findUserEmailResponse(String email);
     AddProductResponse addProductResponse(String email, AddProductRequest addProductRequest);
     RemoveProductResponse removeProductResponse(String email, RemoveProductRequest removeProductRequest);
-    GetAllProductsResponse getAllProductsResponse(String userId);
+//    GetProductResponse getProductResponse(String token, Long productId);
+    GetProductResponse getProductResponse(Long productId);
+    //    GetAllProductsResponse getAllProductsResponse(String token);
+    GetAllProductsResponse getAllProductsResponse();
+    FindUserPaymentResponse findUserPaymentResponse(String email, FindUserPaymentRequest findUserPaymentRequest);
 }

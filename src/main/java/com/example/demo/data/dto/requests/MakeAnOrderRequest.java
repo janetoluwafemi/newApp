@@ -1,5 +1,6 @@
 package com.example.demo.data.dto.requests;
 
+import jakarta.persistence.Column;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +9,8 @@ import lombok.Setter;
 @Getter
 @Data
 public class MakeAnOrderRequest {
-    private Long userId;
-    private Long productId;
+    @Column(unique = true)
     private String email;
+
+    private int quantity;
 }

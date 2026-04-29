@@ -6,6 +6,7 @@ import com.example.demo.data.dto.responses.CancelOrderResponse;
 import com.example.demo.data.dto.responses.MakeAnOrderResponse;
 
 public interface OrderServiceInterface {
-    MakeAnOrderResponse makeAnOrderResponse(MakeAnOrderRequest makeAnOrderRequest);
+//    MakeAnOrderResponse makeAnOrderResponse(String token, Long productId);
+    MakeAnOrderResponse makeAnOrderResponse(String token, Long productId, MakeAnOrderRequest makeAnOrderRequest);
     CancelOrderResponse cancelOrderResponse(CancelOrderRequest cancelOrderRequest);
 }

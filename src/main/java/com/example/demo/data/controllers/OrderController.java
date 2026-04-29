@@ -19,10 +19,12 @@ public class OrderController {
     public OrderController(OrderServiceImpl orderService) {
         this.orderService = orderService;
     }
+//    public ResponseEntity<?> makeOrder(@RequestParam String token, Long productId) {
     @PostMapping("/makeOrder")
-    public ResponseEntity<?> makeOrder(@RequestBody MakeAnOrderRequest makeAnOrderRequest) {
+    public ResponseEntity<?> makeOrder(@RequestParam(required = false) String token, @RequestParam Long productId,
+                                       @RequestBody MakeAnOrderRequest makeAnOrderRequest) {
         try {
-            MakeAnOrderResponse makeAnOrderResponse = orderService.makeAnOrderResponse(makeAnOrderRequest);
+            MakeAnOrderResponse makeAnOrderResponse = orderService.makeAnOrderResponse(token, productId, makeAnOrderRequest);
             return new ResponseEntity<>(new ApiResponse(makeAnOrderResponse, true), HttpStatus.CREATED);
         } catch (Exception error) {
             return new ResponseEntity<>(new ApiResponse(error, false), HttpStatus.BAD_REQUEST);
