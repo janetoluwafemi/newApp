@@ -37,16 +37,18 @@ import java.util.Optional;
 
     @Override
     public MakeAnOrderResponse makeAnOrderResponse(String token, Long productId, MakeAnOrderRequest makeAnOrderRequest) {
-//        User existingUser = userRepo.findUserByToken(token)
-//                .orElseThrow(() -> new UserNotFoundException("User Not Found"));
         User existingUser = userRepo.findUserByToken(token)
                 .orElseGet(() -> {
-                    User user = new User();
-                    user.setEmail(makeAnOrderRequest.getEmail());
-                    if (userRepo.findUserByEmail(makeAnOrderRequest.getEmail()).isEmpty()) {
-                        return userRepo.save(user);
-                    }
-                    return user;
+                    User user2 = userRepo.findUserByEmail(makeAnOrderRequest.getEmail())
+                            .orElseGet(() -> {
+                                User user = new User();
+                                user.setEmail(makeAnOrderRequest.getEmail());
+                                if (userRepo.findUserByEmail(makeAnOrderRequest.getEmail()).isEmpty()) {
+                                    userRepo.delete(user);
+                                }
+                                return user;
+                            });
+                    return user2;
                 });
         Optional<Product> product = productRepo.findProductById(productId);
         String email = "oluwafemijanet85@gmail.com";
@@ -60,7 +62,6 @@ import java.util.Optional;
             order.setProduct(products);
             String userEmail = java.util.Optional.ofNullable(existingUser.getEmail())
                     .orElse(makeAnOrderRequest.getEmail());
-
             String body = ("I want to place an order for " + existingProduct.getProductName() + " (quantity: " + makeAnOrderRequest.getQuantity() + ").");
             mailService.sendEmailToUser(
                     email,

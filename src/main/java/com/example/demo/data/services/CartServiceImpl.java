@@ -41,15 +41,26 @@ public class CartServiceImpl implements CartServiceInterface{
 
     @Override
     @Transactional
-    public AddToCartResponse addToCartResponse(AddToCartRequest addToCartRequest) {
-        Optional<User> user = userRepo.findUserById(addToCartRequest.getUserId());
-        Optional<Product> product = productRepo.findProductById(addToCartRequest.getProductId());
-        if (user.isPresent()) {
+    public AddToCartResponse addToCartResponse(String token, Long productId, AddToCartRequest addToCartRequest) {
+        User user1 = userRepo.findUserByToken(token)
+                .orElseGet(() -> {
+                    User user2 = userRepo.findUserByEmail(addToCartRequest.getEmail())
+                            .orElseGet(() -> {
+                                User user = new User();
+                                user.setEmail(addToCartRequest.getEmail());
+                                if (userRepo.findUserByEmail(addToCartRequest.getEmail()).isEmpty()) {
+                                    userRepo.save(user);
+                                }
+                                return user;
+                            });
+                    return user2;
+                });
+        Optional<Product> product = productRepo.findProductById(productId);
             if (product.isPresent()) {
-                Cart cart = cartRepo.findCartById(addToCartRequest.getUserId())
+                Cart cart = cartRepo.findCartById(user1.getId())
                         .orElseGet(() -> {
                             Cart newCart = new Cart();
-                            newCart.setUser(user.get());
+                            newCart.setUser(user1);
                             newCart.setItems(new ArrayList<>());
                             return newCart;
                         });
@@ -66,8 +77,6 @@ public class CartServiceImpl implements CartServiceInterface{
                 return addToCartResponse;
             }
             throw new ProductDoesNotExistException("Product does not exist");
-        }
-        throw new UserNotFoundException("User not found");
     }
 
     @Override

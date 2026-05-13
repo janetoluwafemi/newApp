@@ -3,7 +3,7 @@ package com.example.demo.data.dto.requests;
 import lombok.Data;
 
 @Data
-public class VerifyEmailRequest {
+public class VerifyEmailForSignUpRequest {
     private String email;
     private int otp;
 }

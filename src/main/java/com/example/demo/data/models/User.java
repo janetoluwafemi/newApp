@@ -15,5 +15,6 @@ public class User {
     private String email;
     private String password;
     private String token;
-    private int otp;
+    private int otpFromVerify;
+    private int otpFromSignUp;
 }

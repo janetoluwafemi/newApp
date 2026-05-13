@@ -19,7 +19,7 @@ public class OrderController {
     public OrderController(OrderServiceImpl orderService) {
         this.orderService = orderService;
     }
-//    public ResponseEntity<?> makeOrder(@RequestParam String token, Long productId) {
+
     @PostMapping("/makeOrder")
     public ResponseEntity<?> makeOrder(@RequestParam(required = false) String token, @RequestParam Long productId,
                                        @RequestBody MakeAnOrderRequest makeAnOrderRequest) {

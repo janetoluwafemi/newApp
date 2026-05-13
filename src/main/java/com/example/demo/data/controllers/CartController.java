@@ -12,20 +12,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 @RestController
 @CrossOrigin(origins = {"http://localhost:3000", "https://email-app-chi.vercel.app"})
 @RequestMapping("/api/v1/auth")
 public class CartController {
-    private final CartServiceImpl cartService;
 
+    private final CartServiceImpl cartService;
     public CartController(CartServiceImpl cartService) {
         this.cartService = cartService;
     }
 
     @PostMapping("/addToCart")
-    public ResponseEntity<?> addToCart(@RequestBody AddToCartRequest addToCartRequest) {
+    public ResponseEntity<?> addToCart(@RequestParam(required = false) String token, @RequestParam Long productId,
+                                       @RequestBody AddToCartRequest addToCartRequest) {
         try {
-            AddToCartResponse addToCartResponse = cartService.addToCartResponse(addToCartRequest);
+            AddToCartResponse addToCartResponse = cartService.addToCartResponse(token, productId, addToCartRequest);
             return new ResponseEntity<>(new ApiResponse(addToCartResponse, true), HttpStatus.CREATED);
         } catch (Exception error) {
             return new ResponseEntity<>(new ApiResponse(error, false), HttpStatus.BAD_REQUEST);

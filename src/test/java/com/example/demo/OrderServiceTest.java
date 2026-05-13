@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+
 @SpringBootTest
 public class OrderServiceTest {
     @Autowired
@@ -21,7 +22,6 @@ public class OrderServiceTest {
         makeAnOrderRequest.setEmail("eniolaonafujabi@gmail.com");
         makeAnOrderRequest.setQuantity(5);
         String token = "";
-//        String token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJvbHV3YWZlbWlqYW5ldDg1QGdtYWlsLmNvbSIsImlhdCI6MTc3Njk1NTQzMCwiZXhwIjoxNzc3MDQxODMwfQ.aCroXBpPPu3rqoj7gRjT4PcDeSM0g4j3DqUBwZrED00";
         Long productId = 2L;
         MakeAnOrderResponse makeAnOrderResponse = orderService.makeAnOrderResponse(token, productId, makeAnOrderRequest);
         assertThat(makeAnOrderResponse.getMessage().equals("Order made successfully, An Email Was Sent To The Company"));

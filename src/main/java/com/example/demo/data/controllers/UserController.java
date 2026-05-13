@@ -8,7 +8,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin(origins = {"http://localhost:3000", "https://email-app-chi.vercel.app"})
+@CrossOrigin(origins = {
+        "http://localhost:3000",
+        "https://email-app-chi.vercel.app",
+        "http://localhost:8081",
+        "http://192.168.165.221:8081",
+        "http://localhost:8082",
+        "http://192.168.165.221:8082",
+        "http://localhost:8083"
+})
 @RequestMapping("/api/v1/auth")
 public class UserController {
     private final UserServiceImpl userService;
@@ -26,9 +34,9 @@ public class UserController {
         }
     }
     @PostMapping("/verifyEmail")
-    public ResponseEntity<?> verifyEmail(@RequestBody VerifyEmailRequest verifyEmailRequest) {
+    public ResponseEntity<?> verifyEmail(@RequestBody VerifyEmailForSignUpRequest verifyEmailRequest) {
         try {
-            VerifyEmailResponse verifyEmailResponse = userService.verifyEmailResponse(verifyEmailRequest);
+            VerifyEmailForSignUpResponse verifyEmailResponse = userService.verifyEmailResponse(verifyEmailRequest);
             return new ResponseEntity<>(new ApiResponse(verifyEmailResponse, true), HttpStatus.CREATED);
         } catch (Exception error) {
             return new ResponseEntity<>(new ApiResponse(error, false), HttpStatus.BAD_REQUEST);
@@ -43,16 +51,25 @@ public class UserController {
             return new ResponseEntity<>(new ApiResponse(error, false), HttpStatus.BAD_REQUEST);
         }
     }
-    @PostMapping("/resetPassword")
-    public ResponseEntity<?> resetPassword(@RequestBody String email, ResetPasswordRequest resetPasswordRequest) {
+    @PostMapping("/verifyUser")
+    public ResponseEntity<?> verifyEmail(@RequestBody VerifyEmailRequest request) {
         try {
-            ResetPasswordResponse resetPasswordResponse = userService.resetPasswordResponse(email, resetPasswordRequest);
+            VerifyEmailResponse verifyEmailResponse = userService.verifyEmailResponse(request);
+            return new ResponseEntity<>(new ApiResponse(verifyEmailResponse, true), HttpStatus.CREATED);
+        } catch (Exception error) {
+            return new ResponseEntity<>(new ApiResponse(error, false), HttpStatus.BAD_REQUEST);
+        }
+    }
+    @PatchMapping("/resetPassword")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
+        try {
+            ResetPasswordResponse resetPasswordResponse = userService.resetPasswordResponse(resetPasswordRequest);
             return new ResponseEntity<>(new ApiResponse(resetPasswordResponse, true), HttpStatus.CREATED);
         } catch (Exception error) {
             return new ResponseEntity<>(new ApiResponse(error, false), HttpStatus.BAD_REQUEST);
         }
     }
-    @PostMapping("/changePassword")
+    @PatchMapping("/changePassword")
     public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest) {
         try {
             ChangePasswordResponse changePasswordResponse = userService.changePasswordResponse(changePasswordRequest);

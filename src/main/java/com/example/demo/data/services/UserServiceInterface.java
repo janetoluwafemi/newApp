@@ -6,18 +6,18 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface UserServiceInterface extends UserDetailsService {
     RegisterUserResponse registerUserResponse(RegisterUserRequest registerUserRequest);
-    VerifyEmailResponse verifyEmailResponse(VerifyEmailRequest verifyEmailRequest);
+    VerifyEmailForSignUpResponse verifyEmailResponse(VerifyEmailForSignUpRequest verifyEmailRequest);
     LoginUserResponse loginUserResponse(LoginUserRequest loginUserRequest);
     LogOutUserResponse logOutUserResponse(LogOutUserRequest logOutUserRequest);
     ChangePasswordResponse changePasswordResponse(ChangePasswordRequest changePasswordRequest);
     SendOTPResponse sendOTPResponse(String email);
-    ResetPasswordResponse resetPasswordResponse(String email, ResetPasswordRequest resetPasswordRequest);
+    ResetPasswordResponse resetPasswordResponse(ResetPasswordRequest resetPasswordRequest);
     FindUserEmailResponse findUserEmailResponse(String email);
     AddProductResponse addProductResponse(String email, AddProductRequest addProductRequest);
     RemoveProductResponse removeProductResponse(String email, RemoveProductRequest removeProductRequest);
-//    GetProductResponse getProductResponse(String token, Long productId);
     GetProductResponse getProductResponse(Long productId);
-    //    GetAllProductsResponse getAllProductsResponse(String token);
     GetAllProductsResponse getAllProductsResponse();
+    VerifyEmailResponse verifyEmailResponse(VerifyEmailRequest verifyEmailRequest);
+    String message(Long userId);
     FindUserPaymentResponse findUserPaymentResponse(String email, FindUserPaymentRequest findUserPaymentRequest);
 }

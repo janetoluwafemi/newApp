@@ -8,7 +8,7 @@ import com.example.demo.data.dto.responses.DeleteCartResponse;
 import com.example.demo.data.dto.responses.RemoveFromCartResponse;
 
 public interface CartServiceInterface   {
-    AddToCartResponse addToCartResponse(AddToCartRequest addToCartRequest);
+    AddToCartResponse addToCartResponse(String token, Long productId, AddToCartRequest addToCartRequest);
     DeleteCartResponse deleteCartResponse(DeleteCartRequest editCartItemInCartRequest);
     RemoveFromCartResponse removeFromCartResponse(RemoveFromCartRequest removeFromCartRequest);
 }

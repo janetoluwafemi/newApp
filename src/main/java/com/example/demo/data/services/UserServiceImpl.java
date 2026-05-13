@@ -61,17 +61,17 @@ public class UserServiceImpl implements UserServiceInterface {
         }
         user.setEmail(registerUserRequest.getEmail());
         user.setPassword(passwordEncoder.encode(registerUserRequest.getPassword()));
-        Random randomFourNumbers = new Random();
-        int otpStr = randomFourNumbers.nextInt(10000);
-        int otp = Integer.parseInt(String.format("%04d", otpStr));
-        System.out.println("OPT generated is" + otpStr);
+//        Random randomFourNumbers = new Random();
+//        int otpStr = randomFourNumbers.nextInt(10000);
+//        int otp = Integer.parseInt(String.format("%04d", otpStr));
+//        System.out.println("OPT generated is" + otpStr);
 //        try {
 //            mailService.sendEmailToUser(
 //                    registerUserRequest.getEmail(),
 //                    String.valueOf(otp),
 //                    "Welcome To Our App"
 //            );
-//            user.setOtp(otp);
+//            user.setOtpFromSignUp(otp);
             userRepo.save(user);
             registerUserResponse.setMessage("User Registered Successfully");
 //        } catch (Exception error) {
@@ -81,17 +81,17 @@ public class UserServiceImpl implements UserServiceInterface {
     }
 
     @Override
-    public VerifyEmailResponse verifyEmailResponse(VerifyEmailRequest verifyEmailRequest) {
+    public VerifyEmailForSignUpResponse verifyEmailResponse(VerifyEmailForSignUpRequest verifyEmailRequest) {
         Optional<User> existingUser = userRepo.findUserByEmail(verifyEmailRequest.getEmail());
         if(existingUser.isPresent()) {
             User user = existingUser.get();
-            if (String.valueOf(verifyEmailRequest.getOtp()).equals(String.valueOf(existingUser.get().getOtp()))) {
-                user.setOtp(verifyEmailRequest.getOtp());
+            if (String.valueOf(verifyEmailRequest.getOtp()).equals(String.valueOf(existingUser.get().getOtpFromSignUp()))) {
+                user.setOtpFromSignUp(verifyEmailRequest.getOtp());
                 userRepo.save(user);
-                VerifyEmailResponse verifyEmailResponse = new VerifyEmailResponse();
+                VerifyEmailForSignUpResponse verifyEmailResponse = new VerifyEmailForSignUpResponse();
                 verifyEmailResponse.setId(user.getId());
                 verifyEmailResponse.setMessage("User verified successfully");
-                user.setOtp(0);
+                user.setOtpFromSignUp(0);
                 userRepo.save(user);
                 return verifyEmailResponse;
             }
@@ -146,6 +146,7 @@ public class UserServiceImpl implements UserServiceInterface {
         }
         throw new UserNotFoundException("User Not Found");
     }
+
     @Override
     public SendOTPResponse sendOTPResponse(String email){
         Optional<User> existingUser = userRepo.findUserByEmail(email);
@@ -159,7 +160,7 @@ public class UserServiceImpl implements UserServiceInterface {
                     String.valueOf(otp),
                     "Otp sent, reset your password"
             );
-            user.setOtp(otp);
+            user.setOtpFromVerify(otp);
             userRepo.save(user);
             SendOTPResponse sendOTPResponse = new SendOTPResponse();
             sendOTPResponse.setOtp(String.valueOf(otp));
@@ -167,25 +168,24 @@ public class UserServiceImpl implements UserServiceInterface {
         }
         throw new UserNotFoundException("User Not Found");
     }
+
     @Override
-    public ResetPasswordResponse resetPasswordResponse(String email, ResetPasswordRequest resetPasswordRequest) {
-        Optional<User> existingUser = userRepo.findUserByEmail(email);
-        if (existingUser.isPresent()) {
-            User user = existingUser.get();
-            if (resetPasswordRequest.getOtp() == 0 || resetPasswordRequest.getNewPassword().isEmpty()) {
+    public ResetPasswordResponse resetPasswordResponse(ResetPasswordRequest resetPasswordRequest) {
+        User existingUser = userRepo.findUserByOtpFromVerify(resetPasswordRequest.getOtpFromVerify())
+                .orElseThrow( () -> new UserNotFoundException("User Not Found"));
+            if (resetPasswordRequest.getOtpFromVerify() == 0 || resetPasswordRequest.getNewPassword().isEmpty()) {
                 throw new AllFieldsMustBeInputted("All Fields Must Be Inputted");
             }
-            if(user.getOtp() != resetPasswordRequest.getOtp()) {
+            if(existingUser.getOtpFromVerify() != resetPasswordRequest.getOtpFromVerify()) {
                 throw new InvalidOTPException("Invalid OTP");
             }
-            user.setOtp(resetPasswordRequest.getOtp());
-            user.setPassword(passwordEncoder.encode(resetPasswordRequest.getNewPassword()));
-            userRepo.save(user);
+            existingUser.setOtpFromVerify(resetPasswordRequest.getOtpFromVerify());
+            existingUser.setPassword(passwordEncoder.encode(resetPasswordRequest.getNewPassword()));
+            existingUser.setOtpFromVerify(0);
+            userRepo.save(existingUser);
             ResetPasswordResponse resetPasswordResponse = new ResetPasswordResponse();
             resetPasswordResponse.setMessage("Password Reset Successfully");
             return resetPasswordResponse;
-        }
-        throw new UserNotFoundException("User Not Found");
     }
 
     @Override
@@ -250,10 +250,7 @@ public class UserServiceImpl implements UserServiceInterface {
     }
 
     @Override
-//    public GetProductResponse getProductResponse(String token, Long productId) {
     public GetProductResponse getProductResponse(Long productId) {
-//        Optional<User> user = userRepo.findUserByToken(token);
-//        if (user.isPresent()) {
             Optional<Product> product = productRepo.getProductById(productId);
             if (product.isPresent()) {
                 Product getProduct = product.get();
@@ -263,23 +260,48 @@ public class UserServiceImpl implements UserServiceInterface {
                 return getProductResponse;
             }
             throw new ProductDoesNotExistException("Product Does Not Exist");
-//        }
-//        throw new UserNotFoundException("User not found");
     }
 
     @Override
-//    public GetAllProductsResponse getAllProductsResponse(String token) {
     public GetAllProductsResponse getAllProductsResponse() {
-//        Optional<User> user = userRepo.findUserByToken(token);
-//        if (user.isPresent()) {
-            List<Product> products = productRepo.findAll();
-            GetAllProductsResponse getAllProductsResponse = new GetAllProductsResponse();
-            getAllProductsResponse.setProducts(products);
-            getAllProductsResponse.setMessage("All Products Successfully Retrieved");
-            return getAllProductsResponse;
+        List<Product> products = productRepo.findAll();
+        GetAllProductsResponse getAllProductsResponse = new GetAllProductsResponse();
+        getAllProductsResponse.setProducts(products);
+        getAllProductsResponse.setMessage("All Products Successfully Retrieved");
+        return getAllProductsResponse;
+    }
 
-//        }
-//        throw new UserNotFoundException("User not found");
+    @Override
+    public VerifyEmailResponse verifyEmailResponse(VerifyEmailRequest verifyEmailRequest) {
+        Optional<User> findUser = userRepo.findUserByEmail(verifyEmailRequest.getEmail());
+        if (findUser.isPresent()) {
+            User user = findUser.get();
+            Random randomFourNumbers = new Random();
+            int otpStr = randomFourNumbers.nextInt(10000);
+            int otp = Integer.parseInt(String.format("%04d", otpStr));
+            mailService.sendEmailToUser(
+                    verifyEmailRequest.getEmail(),
+                    String.valueOf(otp),
+                    "Otp sent, reset your password"
+            );
+            user.setOtpFromVerify(otp);
+            userRepo.save(user);
+            VerifyEmailResponse verifyEmailResponse = new VerifyEmailResponse();
+            verifyEmailResponse.setOtp(String.valueOf(otp));
+            verifyEmailResponse.setMessage("OTP sent successfully");
+            return verifyEmailResponse;
+        }
+        throw new UserNotFoundException("User not found");
+    }
+
+    @Override
+    public String message(Long userId) {
+        Optional<User> user = userRepo.findUserById(userId);
+        if (user.isPresent()) {
+            userRepo.delete(user.get());
+            return "User Deleted Successfully";
+        }
+        throw new UserNotFoundException("User Not Found");
     }
 
     @Override

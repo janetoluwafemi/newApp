@@ -13,7 +13,6 @@ import java.util.List;
 @Getter
 @Data
 public class AddToCartRequest {
-    private Long userId;
-    private Long productId;
+    private String email;
     private int quantity;
 }
