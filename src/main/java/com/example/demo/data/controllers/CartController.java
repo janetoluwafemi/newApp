@@ -14,8 +14,16 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@CrossOrigin(origins = {"http://localhost:3000", "https://email-app-chi.vercel.app"})
-@RequestMapping("/api/v1/auth")
+@CrossOrigin(origins = {
+        "http://localhost:3000",
+        "https://email-app-chi.vercel.app",
+        "http://localhost:8081",
+        "http://192.168.165.221:8081",
+        "http://localhost:8082",
+        "http://192.168.165.221:8082",
+        "http://localhost:8083",
+        "http://192.168.0.196:8081"
+})@RequestMapping("/api/v1/auth")
 public class CartController {
 
     private final CartServiceImpl cartService;
