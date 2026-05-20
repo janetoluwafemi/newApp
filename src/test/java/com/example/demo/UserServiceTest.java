@@ -1,9 +1,6 @@
 package com.example.demo;
 
-import com.example.demo.data.dto.requests.AddProductRequest;
-import com.example.demo.data.dto.requests.RegisterUserRequest;
-import com.example.demo.data.dto.requests.ResetPasswordRequest;
-import com.example.demo.data.dto.requests.VerifyEmailRequest;
+import com.example.demo.data.dto.requests.*;
 import com.example.demo.data.dto.responses.*;
 import com.example.demo.data.services.UserServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -73,9 +70,9 @@ public class UserServiceTest {
     public void testAdminCanAddProduct() {
       AddProductRequest addProductRequest = new AddProductRequest();
       String email = "oluwafemijanet85@gmail.com";
-      addProductRequest.setProductName("Moringa Hair Growth Oil");
+      addProductRequest.setProductName("Moringa Oil");
       addProductRequest.setCategory("Hair Care");
-      addProductRequest.setDescription("A nourishing blend of natural oils and herb that promotes hair growth, strengthens roots, reduces breakage, and adds shine. مناسب for all hair types.");
+      addProductRequest.setDescription("A nutrient-dense, lightweight oil celebrated in hair care for its ability to deeply moisturize, strengthen strands, and soothe the scalp without leaving a greasy residue");
       addProductRequest.setPrice(34.99);
       addProductRequest.setQuantity(50);
       addProductRequest.setImageUrl("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPMZpZsJ1xAv8jRmmriGlzfhXAgikFBUdVag&s");
@@ -83,9 +80,9 @@ public class UserServiceTest {
       assertThat(addProductResponse.getMessage().equals("Product Added Successfully"));
         AddProductRequest addProductRequest2 = new AddProductRequest();
         String email2 = "oluwafemijanet85@gmail.com";
-        addProductRequest2.setProductName("Alma Hair Growth Oil");
+        addProductRequest2.setProductName("Alma Oil");
         addProductRequest2.setCategory("Hair Care");
-        addProductRequest2.setDescription("A nourishing blend of natural oils and herbs that promotes hair growth, strengthens roots, reduces breakage, and adds shine. مناسب for all hair types.");
+        addProductRequest2.setDescription(". Packed with Vitamin C and antioxidants, it strengthens hair roots, reduces breakage, combats premature greying, and soothes dry, irritated scalps.");
         addProductRequest2.setPrice(16.99);
         addProductRequest2.setQuantity(50);
         addProductRequest2.setImageUrl("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQS6pNZJtq2tqbTZJN4a90heaYkMaWGQ6IxHQ&s");
@@ -93,7 +90,7 @@ public class UserServiceTest {
         assertThat(addProductResponse2.getMessage().equals("Product Added Successfully"));
         AddProductRequest addProductRequest3 = new AddProductRequest();
         String email3 = "oluwafemijanet85@gmail.com";
-        addProductRequest3.setProductName("Hair Growth Butter");
+        addProductRequest3.setProductName("Hair Butter");
         addProductRequest3.setCategory("Hair Care");
         addProductRequest3.setDescription("A nourishing blend of natural oils, and herbs that promotes hair growth, strengthens roots, reduces breakage, and adds shine. مناسب for all hair types.");
         addProductRequest3.setPrice(49.99);
@@ -103,9 +100,9 @@ public class UserServiceTest {
         assertThat(addProductResponse3.getMessage().equals("Product Added Successfully"));
         AddProductRequest addProductRequest4 = new AddProductRequest();
         String email4 = "oluwafemijanet85@gmail.com";
-        addProductRequest4.setProductName("Fenugreek  Hair Growth Oil");
+        addProductRequest4.setProductName("Fenugreek Oil");
         addProductRequest4.setCategory("Hair Care");
-        addProductRequest4.setDescription("A nourishing blend of natural oils that promotes hair growth, strengthens roots, reduces breakage, and adds shine. مناسب for all hair types.");
+        addProductRequest4.setDescription("Is an ancient remedy that delivers intense scalp nourishment. It strengthens hair follicles, reduces breakage, and creates an optimal environment for growth");
         addProductRequest4.setPrice(32.99);
         addProductRequest4.setQuantity(50);
         addProductRequest4.setImageUrl("https://ng.jumia.is/JCRfQojNLeQbVoAxWM_uLI_42rs=/fit-in/500x500/filters:fill(white)/product/92/8212914/1.jpg?5060");
@@ -113,7 +110,7 @@ public class UserServiceTest {
         assertThat(addProductResponse4.getMessage().equals("Product Added Successfully"));
       AddProductRequest addProductRequest5 = new AddProductRequest();
       String email5 = "oluwafemijanet85@gmail.com";
-      addProductRequest5.setProductName("Hair Growth Cream");
+      addProductRequest5.setProductName("Hair Cream");
       addProductRequest5.setCategory("Hair Care");
       addProductRequest5.setDescription("A nourishing blend of natural oils and herb that promotes hair growth, strengthens roots, reduces breakage, and adds shine. مناسب for all hair types.");
       addProductRequest5.setPrice(34.99);
@@ -123,7 +120,7 @@ public class UserServiceTest {
       assertThat(addProductResponse5.getMessage().equals("Product Added Successfully"));
       AddProductRequest addProductRequest6 = new AddProductRequest();
       String email6 = "oluwafemijanet85@gmail.com";
-      addProductRequest6.setProductName("Hair Growth Hair Conditioner");
+      addProductRequest6.setProductName("Hair Conditioner");
       addProductRequest6.setCategory("Hair Care");
       addProductRequest6.setDescription("A nourishing blend of natural oils and herbs that promotes hair growth, strengthens roots, reduces breakage, and adds shine. مناسب for all hair types.");
       addProductRequest6.setPrice(16.99);
@@ -133,7 +130,7 @@ public class UserServiceTest {
       assertThat(addProductResponse6.getMessage().equals("Product Added Successfully"));
       AddProductRequest addProductRequest7 = new AddProductRequest();
       String email7 = "oluwafemijanet85@gmail.com";
-      addProductRequest7.setProductName("Hair Growth Hair LeavenIn Conditioner");
+      addProductRequest7.setProductName("Hair LeavenIn");
       addProductRequest7.setCategory("Hair Care");
       addProductRequest7.setDescription("A nourishing blend of natural oils, and herbs that promotes hair growth, strengthens roots, reduces breakage, and adds shine. مناسب for all hair types.");
       addProductRequest7.setPrice(49.99);
@@ -143,7 +140,7 @@ public class UserServiceTest {
       assertThat(addProductResponse7.getMessage().equals("Product Added Successfully"));
       AddProductRequest addProductRequest8 = new AddProductRequest();
       String email8 = "oluwafemijanet85@gmail.com";
-      addProductRequest8.setProductName("Alma Hair Growth Cream");
+      addProductRequest8.setProductName("Alma Hair Cream");
       addProductRequest8.setCategory("Hair Care");
       addProductRequest8.setDescription("A nourishing blend of natural oils that promotes hair growth, strengthens roots, reduces breakage, and adds shine. مناسب for all hair types.");
       addProductRequest8.setPrice(32.99);
@@ -159,6 +156,48 @@ public class UserServiceTest {
 //        removeProductRequest.setProductId(1L);
 //        RemoveProductResponse removeProductResponse = userService.removeProductResponse(email, removeProductRequest);
 //        assertThat(removeProductResponse.getMessage().equals("Product Removed Successfully"));
+//
+//        RemoveProductRequest removeProductRequest2 = new RemoveProductRequest();
+//        String email2 = "oluwafemijanet85@gmail.com";
+//        removeProductRequest2.setProductId(2L);
+//        RemoveProductResponse removeProductResponse2 = userService.removeProductResponse(email2, removeProductRequest2);
+//        assertThat(removeProductResponse2.getMessage().equals("Product Removed Successfully"));
+//
+//        RemoveProductRequest removeProductRequest3 = new RemoveProductRequest();
+//        String email3 = "oluwafemijanet85@gmail.com";
+//        removeProductRequest3.setProductId(3L);
+//        RemoveProductResponse removeProductResponse3 = userService.removeProductResponse(email3, removeProductRequest3);
+//        assertThat(removeProductResponse3.getMessage().equals("Product Removed Successfully"));
+//
+//        RemoveProductRequest removeProductRequest4 = new RemoveProductRequest();
+//        String email4 = "oluwafemijanet85@gmail.com";
+//        removeProductRequest4.setProductId(4L);
+//        RemoveProductResponse removeProductResponse4 = userService.removeProductResponse(email4, removeProductRequest4);
+//        assertThat(removeProductResponse4.getMessage().equals("Product Removed Successfully"));
+//
+//        RemoveProductRequest removeProductRequest5 = new RemoveProductRequest();
+//        String email5 = "oluwafemijanet85@gmail.com";
+//        removeProductRequest5.setProductId(5L);
+//        RemoveProductResponse removeProductResponse5 = userService.removeProductResponse(email5, removeProductRequest5);
+//        assertThat(removeProductResponse5.getMessage().equals("Product Removed Successfully"));
+//
+//        RemoveProductRequest removeProductRequest6 = new RemoveProductRequest();
+//        String email6 = "oluwafemijanet85@gmail.com";
+//        removeProductRequest6.setProductId(6L);
+//        RemoveProductResponse removeProductResponse6 = userService.removeProductResponse(email6, removeProductRequest6);
+//        assertThat(removeProductResponse6.getMessage().equals("Product Removed Successfully"));
+//
+//        RemoveProductRequest removeProductRequest7 = new RemoveProductRequest();
+//        String email7 = "oluwafemijanet85@gmail.com";
+//        removeProductRequest7.setProductId(7L);
+//        RemoveProductResponse removeProductResponse7 = userService.removeProductResponse(email7, removeProductRequest7);
+//        assertThat(removeProductResponse7.getMessage().equals("Product Removed Successfully"));
+//
+//        RemoveProductRequest removeProductRequest8 = new RemoveProductRequest();
+//        String email8 = "oluwafemijanet85@gmail.com";
+//        removeProductRequest8.setProductId(8L);
+//        RemoveProductResponse removeProductResponse8 = userService.removeProductResponse(email8, removeProductRequest8);
+//        assertThat(removeProductResponse8.getMessage().equals("Product Removed Successfully"));
 //    }
 //    @Test
 //    public void testUserCanGetProduct() {

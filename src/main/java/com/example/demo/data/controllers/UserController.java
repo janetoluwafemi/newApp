@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
         "http://localhost:8083",
         "http://192.168.0.196:8081",
         "http://192.168.132.221:8081",
+        "http://192.168.222.221:8081",
         "http://192.168.132.221:8082",
 })
 @RequestMapping("/api/v1/auth")

@@ -49,7 +49,7 @@ public class CartServiceImpl implements CartServiceInterface{
                                 User user = new User();
                                 user.setEmail(addToCartRequest.getEmail());
                                 if (userRepo.findUserByEmail(addToCartRequest.getEmail()).isEmpty()) {
-                                    userRepo.save(user);
+                                    userRepo.delete(user);
                                 }
                                 return user;
                             });
